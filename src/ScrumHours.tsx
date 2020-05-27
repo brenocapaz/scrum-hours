@@ -166,8 +166,6 @@ const ScrumHours: React.FC = () => {
                     >
                         -1
       </Button>
-                    {/* This Button uses a Font Icon, see the installation instructions in the Icon component docs. */}
-
                     {
                         moment().isSame(todayDate, 'day') &&
                         <Typography variant="h5" >
@@ -230,7 +228,7 @@ const ScrumHours: React.FC = () => {
 
                 </Grid>
                 <Grid container justify="space-between" style={{ marginTop: '32px' }}>
-                    <Grid xs={4}>
+                    <Grid xs={6}>
                         <TableContainer>
                             <Table size="small">
                                 <TableHead>
