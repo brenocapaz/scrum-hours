@@ -65,7 +65,7 @@ const ScrumHours: React.FC = () => {
     const [todayDate, setTodayDate] = useState(moment());
     const knownSprint = { startDate: moment("04/01/2020", "MM/DD/YYYY"), endDate: moment("04/14/2020", "MM/DD/YYYY"), sprintNumber: 7 };
 
-    useEffect(() => calculatePage(), []);
+    useEffect(() => calculatePage(), [todayDate]);
 
     const calculatePage = () => {
         const vacationsString = localStorage.getItem('vacations');
@@ -142,10 +142,9 @@ const ScrumHours: React.FC = () => {
     }
 
     const handleBackOneDay = () => {
-        setTodayDate((s) => {
+        setTodayDate((s: any) => {
             return moment(s).add(-1, 'days');
         });
-        calculatePage();
     };
 
 
@@ -153,7 +152,6 @@ const ScrumHours: React.FC = () => {
         setTodayDate((s) => {
             return moment(s).add(1, 'days');
         });
-        calculatePage();
     };
     return (
         <Container className={classes.mainContainer}>
@@ -195,6 +193,7 @@ const ScrumHours: React.FC = () => {
                         +1
       </Button>
                 </header>
+                <Button onClick={calculatePage}>Recalculate</Button>
                 <Grid container spacing={3} className={classes.gridContainer}>
                     <Grid item xs={12}>
                         <Card raised>
