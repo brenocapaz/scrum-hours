@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/styles'
-import { Paper, Container, Card, CardHeader, Typography, CardContent, Grid, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Button, Divider, TextField } from '@material-ui/core';
+import { Paper, Container, Card, CardHeader, Typography, CardContent, Grid, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Button, Divider, TextField, Theme } from '@material-ui/core';
 import Brightness5Icon from '@material-ui/icons/Brightness5';
 import Brightness3Icon from '@material-ui/icons/Brightness3';
+import ArrowForwardSharpIcon from '@material-ui/icons/ArrowForwardSharp';
+import ArrowBackSharpIcon from '@material-ui/icons/ArrowBackSharp';
 import moment from 'moment';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((theme: Theme) => ({
     mainContainer: {
         width: '100%',
         height: '95vh',
@@ -27,6 +29,12 @@ const useStyles = makeStyles((theme) => ({
     },
     eveningContainer: {
         backgroundColor: 'silver',
+    },
+    dayForeward:{
+        color: theme.palette.primary.dark,
+    },
+    dayBack:{
+        color: theme.palette.secondary.dark,
     }
 
 }));
@@ -54,6 +62,7 @@ const ScrumHours: React.FC = () => {
 
     });
     const [vacation, setVacation] = useState('');
+    const [todayDate, setTodayDate] = useState(moment());
     const knownSprint = { startDate: moment("04/01/2020", "MM/DD/YYYY"), endDate: moment("04/14/2020", "MM/DD/YYYY"), sprintNumber: 7 };
 
     useEffect(() => calculatePage(), []);
@@ -65,11 +74,14 @@ const ScrumHours: React.FC = () => {
             vacations = JSON.parse(vacationsString);
         }
         const sprintLength = knownSprint.endDate.diff(knownSprint.startDate, 'days') + 1;
-        const daysFromLastKnownSprintEnd = moment().diff(knownSprint.endDate, 'days');
-        const numberOfSprints = Math.floor(daysFromLastKnownSprintEnd / sprintLength);
+        const daysFromLastKnownSprintEnd = todayDate.diff(knownSprint.endDate, 'days');
+        let numberOfSprints = Math.floor(daysFromLastKnownSprintEnd / sprintLength);
 
-        const currentSprintNumber = knownSprint.sprintNumber + numberOfSprints;
-
+        let currentSprintNumber = knownSprint.sprintNumber + numberOfSprints;
+        if ((numberOfSprints * sprintLength) < daysFromLastKnownSprintEnd) {
+            currentSprintNumber++;
+            numberOfSprints++;
+        }
 
         const sprintStartDate = knownSprint.startDate.add((sprintLength) * (numberOfSprints), 'days');
         const sprintEndDate = moment(sprintStartDate).add(sprintLength - 1, 'days');
@@ -85,7 +97,7 @@ const ScrumHours: React.FC = () => {
 
             //End of day numbers
             totalSprintDays++;
-            if (day.isSameOrBefore(moment())) {
+            if (day.isSameOrBefore(todayDate)) {
                 daysSpent++;
             } else {
                 daysRemaining++;
@@ -121,7 +133,7 @@ const ScrumHours: React.FC = () => {
 
     const handleAddVacation = () => {
         const vacations: string[] = [...state.vacationDates];
-        if (vacation){
+        if (vacation) {
             vacations.push(vacation);
             localStorage.setItem('vacations', JSON.stringify(vacations));
             setState({ ...state, vacationDates: vacations });
@@ -129,12 +141,62 @@ const ScrumHours: React.FC = () => {
         }
     }
 
+    const handleBackOneDay = () => {
+        setTodayDate((s) => {
+            return moment(s).add(-1, 'days');
+        });
+        calculatePage();
+    };
+
+
+    const handleForewardOneDay = () => {
+        setTodayDate((s) => {
+            return moment(s).add(1, 'days');
+        });
+        calculatePage();
+    };
     return (
         <Container className={classes.mainContainer}>
             <Paper elevation={5} className={classes.mainPaper}>
-                <Typography variant="h5">
-                    {`Today is: ${moment().format('dddd MMMM Do YYYY')}`}
-                </Typography>
+                <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Button
+                        color="secondary"
+                        onClick={handleBackOneDay}
+                        startIcon={<ArrowBackSharpIcon />}
+                    >
+                        -1
+      </Button>
+                    {/* This Button uses a Font Icon, see the installation instructions in the Icon component docs. */}
+
+                    {
+                        moment().isSame(todayDate, 'day') &&
+                        <Typography variant="h5" >
+                            {`Today is: ${todayDate.format('dddd MMMM Do YYYY')}`}
+                        </Typography>
+                    }
+
+                    {
+                        moment().isBefore(todayDate, 'day') &&
+                        <Typography variant="h5" className={classes.dayForeward}>
+                            {`If today is: ${todayDate.format('dddd MMMM Do YYYY')}`}
+                        </Typography>
+                    }
+
+{
+                        moment().isAfter(todayDate, 'day') &&
+                        <Typography variant="h5" className={classes.dayBack}>
+                            {`If today is: ${todayDate.format('dddd MMMM Do YYYY')}`}
+                        </Typography>
+                    }
+
+                    <Button
+                        color="primary"
+                        onClick={handleForewardOneDay}
+                        endIcon={<ArrowForwardSharpIcon />}
+                    >
+                        +1
+      </Button>
+                </header>
                 <Grid container spacing={3} className={classes.gridContainer}>
                     <Grid item xs={12}>
                         <Card raised>
@@ -168,7 +230,7 @@ const ScrumHours: React.FC = () => {
 
                 </Grid>
                 <Grid container justify="space-between" style={{ marginTop: '32px' }}>
-                    <Grid xs={3}>
+                    <Grid xs={4}>
                         <TableContainer>
                             <Table size="small">
                                 <TableHead>
@@ -178,6 +240,9 @@ const ScrumHours: React.FC = () => {
             </TableCell>
                                         <TableCell>
                                             Hours Range
+            </TableCell>
+                                        <TableCell>
+                                            ~Days Range
             </TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -189,6 +254,9 @@ const ScrumHours: React.FC = () => {
                                         <TableCell>
                                             0-8
                 </TableCell>
+                                        <TableCell>
+                                            1
+                </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>
@@ -196,6 +264,9 @@ const ScrumHours: React.FC = () => {
                 </TableCell>
                                         <TableCell>
                                             8-20
+                </TableCell>
+                                        <TableCell>
+                                            3
                 </TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -205,6 +276,9 @@ const ScrumHours: React.FC = () => {
                                         <TableCell>
                                             18-35
                 </TableCell>
+                                        <TableCell>
+                                            6
+                </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>
@@ -212,6 +286,9 @@ const ScrumHours: React.FC = () => {
                 </TableCell>
                                         <TableCell>
                                             30-55
+                </TableCell>
+                                        <TableCell>
+                                            9
                 </TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -221,6 +298,9 @@ const ScrumHours: React.FC = () => {
                                         <TableCell>
                                             50-85
                 </TableCell>
+                                        <TableCell>
+                                            14 (1.5 Sprints)
+                </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>
@@ -228,6 +308,9 @@ const ScrumHours: React.FC = () => {
                 </TableCell>
                                         <TableCell>
                                             > 85
+                </TableCell>
+                                        <TableCell>
+                                            > 1.5 Sprints
                 </TableCell>
                                     </TableRow>
                                 </TableBody>
