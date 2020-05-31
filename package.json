@@ -1,6 +1,6 @@
 {
-  "homepage": "http://alialiayman.github.io/scrum-hours",
-  "name": "scrum-hours",
+  "homepage": "http://alialiayman.github.io/eager-scrummer",
+  "name": "eager-scrummer",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

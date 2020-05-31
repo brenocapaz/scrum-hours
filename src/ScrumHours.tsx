@@ -127,6 +127,7 @@ const calculatePage = () => {
         remainingDays: daysRemaining,
         vacationDates: vacations,
         stories,
+        
         actual: { morning: actualsThisMorning, evening: actualsThisEvening }, toDo: { morning: toDoThisMorning, evening: toDoThisEvening }
     });
 
