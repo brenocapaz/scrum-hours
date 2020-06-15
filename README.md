@@ -32,7 +32,8 @@ Compare the app calculated hours with your numbers this will enable you to catch
 ```
 <img width="1151" alt="image" src="https://user-images.githubusercontent.com/9623964/84615016-9fe53d80-ae7c-11ea-9e9a-9143961547bf.png">
 
+<a href="Ko-fi.com/aymanali">ko-fi</a>
 
-Ko-fi.com/aymanali
+
 
 
